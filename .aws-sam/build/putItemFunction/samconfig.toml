@@ -1,0 +1,11 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "contact-publish-sam-app"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-jdih2axg69a2"
+s3_prefix = "contact-publish-sam-app"
+region = "us-east-1"
+profile = "icloud"
+capabilities = "CAPABILITY_IAM"
+image_repositories = []
