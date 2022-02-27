@@ -16,7 +16,6 @@ exports.putItemHandler = async (event) => {
   const body = JSON.parse(event.body);
   console.log(body);
 
-
   const emailToValidate = body.email[0].address;
   const emailRegexp =
     /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
@@ -33,12 +32,11 @@ exports.putItemHandler = async (event) => {
     };
   }
 
-
   const firstNameToValidate = body.firstName;
-  if (firstNameToValidate == null && firstNameToValidate == '') {
+  if (firstNameToValidate == null && firstNameToValidate == "") {
     var res = {
       errors: {
-        message:  "firstName cannot be empty",
+        message: "firstName cannot be empty",
       },
     };
     return {
@@ -47,9 +45,9 @@ exports.putItemHandler = async (event) => {
     };
   }
 
-
-  const phoneToValidate = body.phone[0].number;;
-  const phoneRegexp =/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
+  const phoneToValidate = body.phone[0].number;
+  const phoneRegexp =
+    /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
   var bool_phone_validate = phoneRegexp.test(phoneToValidate);
   if (!bool_phone_validate) {
     var res = {
@@ -63,6 +61,26 @@ exports.putItemHandler = async (event) => {
     };
   }
 
+  var params_email = {
+    TableName: tableName,
+    FilterExpression: "contains (email, :userEmail)",
+    ExpressionAttributeValues: {
+      ":userEmail": emailToValidate
+    }
+  };
+  const email_result = await docClient.scan(params_email).promise();
+  
+  if(email_result.Count > 0){
+    var res = {
+      errors: {
+        message: "Email already exists",
+      },
+    };
+    return {
+      statusCode: 400,
+      body: JSON.stringify(res),
+    };
+  }
 
   const id = uuidv1();
   const firstName = body.firstName;
@@ -90,16 +108,17 @@ exports.putItemHandler = async (event) => {
       id: id,
       firstName: firstName,
       lastName: lastName,
-      email: { SS: { address: { S: email }, type: { S: emailType } } },
-      phone: { SS: { number: { S: phone }, type: { S: phoneType } } },
+      email: email, 
+      emailType: emailType,
+      phone: { number: phone, type: phoneType },
       address: {
         M: {
-          street: { S: street },
-          city: { S: city },
-          region: { S: region },
-          country: { S: country },
-          postalCode: { S: postalCode },
-          type: { S: addressType },
+          street: street,
+          city: city,
+          region: region,
+          country: country,
+          postalCode: postalCode,
+          type: addressType,
         },
       },
       jobTitle: jobTitle,
