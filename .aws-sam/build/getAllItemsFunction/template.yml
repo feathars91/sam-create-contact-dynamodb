@@ -166,6 +166,7 @@ Resources:
         Api:
           Type: Api
           Properties:
+            RestApiId: !Ref MyApi
             Path: /contacts
             Method: POST
   updateItemFunction:

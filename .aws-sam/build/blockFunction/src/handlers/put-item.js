@@ -16,7 +16,7 @@ exports.putItemHandler = async (event) => {
   const body = JSON.parse(event.body);
   console.log(body);
 
-  //email validation
+
   const emailToValidate = body.email[0].address;
   const emailRegexp =
     /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
@@ -33,7 +33,7 @@ exports.putItemHandler = async (event) => {
     };
   }
 
-  //firstName validation
+
   const firstNameToValidate = body.firstName;
   if (firstNameToValidate == null && firstNameToValidate == '') {
     var res = {
@@ -47,7 +47,7 @@ exports.putItemHandler = async (event) => {
     };
   }
 
-  //phone validation
+
   const phoneToValidate = body.phone[0].number;;
   const phoneRegexp =/^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
   var bool_phone_validate = phoneRegexp.test(phoneToValidate);

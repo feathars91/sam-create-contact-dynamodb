@@ -177,6 +177,8 @@ Resources:
         Api:
           Type: Api
           Properties:
+            RestApiId:
+              Ref: MyApi
             Path: /contacts
             Method: POST
       CodeUri: putItemFunction

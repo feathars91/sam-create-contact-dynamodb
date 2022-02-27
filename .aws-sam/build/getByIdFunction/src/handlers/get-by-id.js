@@ -7,9 +7,7 @@ const tableName = process.env.SAMPLE_TABLE;
 const dynamodb = require('aws-sdk/clients/dynamodb');
 const docClient = new dynamodb.DocumentClient();
 
-/**
- * A simple example includes a HTTP get method to get one item by id from a DynamoDB table.
- */
+
 exports.getByIdHandler = async (event) => {
   if (event.httpMethod !== 'GET') {
     throw new Error(`getMethod only accept GET method, you tried: ${event.httpMethod}`);
@@ -21,7 +19,7 @@ exports.getByIdHandler = async (event) => {
   const id = event.pathParameters.contactId;
  
   // Get the item from the table
-  // https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html#get-property
+  
   var params = {
     TableName : tableName,
     Key: { id: id },
