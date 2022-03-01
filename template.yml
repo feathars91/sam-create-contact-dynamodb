@@ -11,12 +11,13 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
+
       Auth:
         DefaultAuthorizer: MyLambdaTokenAuthorizer
-        Authorizers: 
+        Authorizers:
           MyLambdaTokenAuthorizer:
             FunctionArn: !GetAtt MyAuthFunction.Arn
-
+        
   MyAuthFunction:
     Type: 'AWS::Serverless::Function'
     Properties:

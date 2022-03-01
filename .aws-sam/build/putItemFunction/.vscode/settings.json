@@ -1,0 +1,8 @@
+{
+    "yaml.schemas": {
+        "file:///c%3A/Users/china040/AppData/Roaming/Code/User/globalStorage/amazonwebservices.aws-toolkit-vscode/sam.schema.json": [
+            "old_docs_09142021/OLD/OLD_07_17_2020/21CFLoadintoRaw.yaml"
+        ],
+        "aws:/c%3A/Users/china040/AppData/Roaming/Code/User/globalStorage/amazonwebservices.aws-toolkit-vscode/sam.schema.json": "file:///c%3A/Users/china040/Documents/devlopment2/sam-create-contact-dynamodb/template.yml"
+    }
+}

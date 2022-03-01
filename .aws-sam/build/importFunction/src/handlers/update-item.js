@@ -3,6 +3,7 @@ const docClient = new dynamodb.DocumentClient();
 const uuidv1 = require("uuid/v1");
 // Get the DynamoDB table name from environment variables
 const tableName = process.env.SAMPLE_TABLE;
+const validation = require('./validation/validations')
 
 exports.updateItemHandler = async (event) => {
   if (event.httpMethod !== "PUT") {
@@ -16,49 +17,41 @@ exports.updateItemHandler = async (event) => {
   const body = JSON.parse(event.body);
   console.log(body);
 
-  const emailToValidate = body.email[0].address;
-  const emailRegexp =
-    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
-  var bool_validate = emailRegexp.test(emailToValidate);
-  if (!bool_validate) {
-    var res = {
-      errors: {
-        message: emailToValidate + "is not a valid input for email",
-      },
-    };
-    return {
-      statusCode: 400,
-      body: JSON.stringify(res),
-    };
+//validation --
+  var arrRequiredFields = {
+    firstName: body.firstName,
+    lastName: body.lastName,
+    email: body.email[0].address,
+    phone: body.phone[0].number,
+  };
+
+  for (var key in arrRequiredFields) {
+    if (validation.validateEmpty(key, arrRequiredFields[key]) != 'not empty') {
+      return validation.validateEmpty(key, arrRequiredFields[key])
+    }
   }
 
-  const firstNameToValidate = body.firstName;
-  if (firstNameToValidate == null && firstNameToValidate == "") {
-    var res = {
-      errors: {
-        message: "firstName cannot be empty",
-      },
-    };
-    return {
-      statusCode: 400,
-      body: JSON.stringify(res),
-    };
+  var arrGeneralExpFields = {
+    firstName: body.firstName,
+    lastName: body.lastName
+  };
+
+  for (var key in arrGeneralExpFields) {
+    if (validation.validateGeneral(key, arrGeneralExpFields[key]) != 'ok') {
+      return validation.validateGeneral(key, arrGeneralExpFields[key])
+    }
+  }
+
+  const emailToValidate = body.email[0].address;
+
+  if (validation.validateEmail(emailToValidate) != 'ok') {
+    return validation.validateEmail(emailToValidate)
   }
 
   const phoneToValidate = body.phone[0].number;
-  const phoneRegexp =
-    /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
-  var bool_phone_validate = phoneRegexp.test(phoneToValidate);
-  if (!bool_phone_validate) {
-    var res = {
-      errors: {
-        message: "phone number must be at least 11 characters",
-      },
-    };
-    return {
-      statusCode: 400,
-      body: JSON.stringify(res),
-    };
+
+  if (validation.ValidatePhone(phoneToValidate) != 'ok') {
+    return validation.ValidatePhone(phoneToValidate)
   }
 
 //email exists validation - not needed for update items. Documentation is wrong.

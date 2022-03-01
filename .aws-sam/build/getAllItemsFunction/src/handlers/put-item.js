@@ -3,74 +3,67 @@ const docClient = new dynamodb.DocumentClient();
 const uuidv1 = require("uuid/v1");
 // Get the DynamoDB table name from environment variables
 const tableName = process.env.SAMPLE_TABLE;
+const validation = require('./validation/validations')
 
 exports.putItemHandler = async (event) => {
   if (event.httpMethod !== "POST") {
-    throw new Error(
-      `postMethod only accepts POST method, you tried: ${event.httpMethod} method.`
-    );
+  throw new Error(
+  `postMethod only accepts POST method, you tried: ${event.httpMethod} method.`
+  );
   }
   // All log statements are written to CloudWatch
   console.info("received:", event);
-
   const body = JSON.parse(event.body);
   console.log(body);
 
-  const emailToValidate = body.email[0].address;
-  const emailRegexp =
-    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
-  var bool_validate = emailRegexp.test(emailToValidate);
-  if (!bool_validate) {
-    var res = {
-      errors: {
-        message: emailToValidate + "is not a valid input for email",
-      },
-    };
-    return {
-      statusCode: 400,
-      body: JSON.stringify(res),
-    };
+//validation --
+  var arrRequiredFields = {
+    firstName: body.firstName,
+    lastName: body.lastName,
+    email: body.email[0].address,
+    phone: body.phone[0].number,
+  };
+
+  for (var key in arrRequiredFields) {
+    if (validation.validateEmpty(key, arrRequiredFields[key]) != 'not empty') {
+      return validation.validateEmpty(key, arrRequiredFields[key])
+    }
   }
 
-  const firstNameToValidate = body.firstName;
-  if (firstNameToValidate == null && firstNameToValidate == "") {
-    var res = {
-      errors: {
-        message: "firstName cannot be empty",
-      },
-    };
-    return {
-      statusCode: 400,
-      body: JSON.stringify(res),
-    };
+  var arrGeneralExpFields = {
+    firstName: body.firstName,
+    lastName: body.lastName
+  };
+
+  for (var key in arrGeneralExpFields) {
+    if (validation.validateGeneral(key, arrGeneralExpFields[key]) != 'ok') {
+      return validation.validateGeneral(key, arrGeneralExpFields[key])
+    }
+  }
+
+  const emailToValidate = body.email[0].address;
+
+  if (validation.validateEmail(emailToValidate) != 'ok') {
+    return validation.validateEmail(emailToValidate)
   }
 
   const phoneToValidate = body.phone[0].number;
-  const phoneRegexp =
-    /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
-  var bool_phone_validate = phoneRegexp.test(phoneToValidate);
-  if (!bool_phone_validate) {
-    var res = {
-      errors: {
-        message: "phone number must be at least 11 characters",
-      },
-    };
-    return {
-      statusCode: 400,
-      body: JSON.stringify(res),
-    };
+
+  if (validation.ValidatePhone(phoneToValidate) != 'ok') {
+    return validation.ValidatePhone(phoneToValidate)
   }
 
   var params_email = {
     TableName: tableName,
     FilterExpression: "contains (email, :userEmail)",
     ExpressionAttributeValues: {
-      ":userEmail": emailToValidate
-    }
+      ":userEmail": emailToValidate,
+    },
   };
+
   const email_result = await docClient.scan(params_email).promise();
-  
-  if(email_result.Count > 0){
+
+  if (email_result.Count > 0) {
     var res = {
       errors: {
         message: "Email already exists",
@@ -81,6 +74,7 @@ exports.putItemHandler = async (event) => {
       body: JSON.stringify(res),
     };
   }
+//validation end --
 
   const id = uuidv1();
   const firstName = body.firstName;
@@ -108,7 +102,7 @@ exports.putItemHandler = async (event) => {
       id: id,
       firstName: firstName,
       lastName: lastName,
-      email: email, 
+      email: email,
       emailType: emailType,
       phone: { number: phone, type: phoneType },
       address: {

@@ -15,7 +15,6 @@ exports.getAllItemsHandler = async (event) => {
     // All log statements are written to CloudWatch
     console.info('received:', event);
 
-
     var params = {
         TableName : tableName
     };
